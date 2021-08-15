@@ -19,15 +19,23 @@ class GithubActionRunArtifactsLister
     public function list(
         string $owner,
         string $repo,
-        int $runId
+        int $runId,
+        ?string $token = null
     ): array
     {
 
         $curl = curl_init("https://api.github.com/repos/$owner/$repo/actions/runs/$runId/artifacts");
-        curl_setopt_array($curl, [
+        
+        $curlOptions = [
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_USERAGENT => GithubUserAgent::USER_AGENT
-        ]);
+        ];
+
+        if ($token !== null) {
+            $curlOptions[CURLOPT_HTTPHEADER] = ['Authorization: token ' . $token];
+        }
+
+        curl_setopt_array($curl, $curlOptions);
 
         $response = curl_exec($curl);
 
